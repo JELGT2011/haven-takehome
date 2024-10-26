@@ -1,0 +1,14 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Match the user's document and all subcollections within it
+    match /Users/{userId}/{document=**} {
+      // Allow creating documents if the user is authenticated and within their own path
+      allow create: if request.auth.uid == userId;
+      
+      // Allow reading and writing within their own path
+      allow read, write: if request.auth.uid == userId;
+    }
+  }
+}
