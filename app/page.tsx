@@ -26,10 +26,8 @@ export default function Home() {
     try {
       const response = await fetch(`/api/gutenberg/metadata?id=${id}`);
       if (response.ok) {
-        const data = await response.json();
-
-        // Set metadata based on response
-        setMetadata(data.metadata);
+        const metadata = await response.json();
+        setMetadata(JSON.stringify(metadata, null, 2));
       } else {
         setMetadata("Book metadata not found.");
       }
