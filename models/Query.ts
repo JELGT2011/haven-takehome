@@ -1,6 +1,5 @@
 
 export interface Query {
-    id: string;
-    book: string;
+    query: string;
     created: Date;
 }

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import useAuth from "@/hooks/useAuth";
+import { addDoc, collection, getFirestore, serverTimestamp } from "@firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -72,21 +73,27 @@ export default function Home() {
         </div>
 
         {/* Display Book Metadata */}
-        <Card className="mt-8 w-full max-w-md cursor-pointer">
-          <CardTitle>Metadata</CardTitle>
-          <CardContent className="overflow-y-auto max-h-96">
-            <pre className="whitespace-pre-wrap text-sm">{metadata}</pre>
-          </CardContent>
-        </Card>
+        {metadata && (
+          <Card className="mt-8 w-full max-w-md cursor-pointer">
+            <CardTitle>Metadata</CardTitle>
+            <CardContent className="overflow-y-auto max-h-96">
+              <pre className="whitespace-pre-wrap text-sm">{metadata}</pre>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Display Read Book Button */}
         <Button
-          onClick={() => {
-            if (!id) return;
+          onClick={async () => {
+            if (!id || !user) return;
+
+            const firestore = getFirestore();
+            const ref = collection(firestore, `Users/${user.uid}/Queries`);
+            await addDoc(ref, { query: id, created: serverTimestamp() });
 
             router.push(`/${id}`);
           }}
-          disabled={!id}
+          disabled={!id || !user}
           className="mt-8"
         >
           Read Book
