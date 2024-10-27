@@ -10,6 +10,8 @@ const BookPage = () => {
 
     const [metadata, setMetadata] = useState("");
     const [content, setContent] = useState("");
+    const [analysis, setAnalysis] = useState("");
+    const [generating, setGenerating] = useState(false);
 
     useEffect(() => {
         if (!id) return;
@@ -48,6 +50,25 @@ const BookPage = () => {
         fetchContent();
     }, [id]);
 
+    const handleGenerateAnalysis = async () => {
+        setGenerating(true);
+        try {
+            const response = await fetch(`/api/analysis?id=${id}`, { method: "POST" });
+            if (response.ok) {
+                const analysis = await response.json();
+                setAnalysis(analysis);
+            } else {
+                setAnalysis("Failed to generate analysis.");
+                console.error("Failed to generate analysis:", response.statusText);
+            }
+        } catch (error) {
+            setAnalysis("Failed to generate analysis.");
+            console.error("Error generating analysis:", error);
+        } finally {
+            setGenerating(false);
+        }
+    }
+
     if (!id) {
         return <div>Loading...</div>;
     }
@@ -72,17 +93,32 @@ const BookPage = () => {
                     </CardContent>
                 </Card>
 
+                {/* Display Analysis Contents */}
+                {analysis && (
+                    <Card className="mt-8 w-full max-w-md cursor-pointer">
+                        <CardTitle>Analysis</CardTitle>
+                        <CardContent className="overflow-y-auto max-h-96">
+                            <pre className="whitespace-pre-wrap text-sm">{analysis}</pre>
+                        </CardContent>
+                    </Card>
+                )}
+
                 {/* Display Analysis Button */}
-                <Button
-                    // onClick={handleCardClick}
-                    disabled={!id}
-                    className="mt-8"
-                >
-                    Run Analysis
-                </Button>
+                {generating && (
+                    <div className="mt-8">Generating analysis...</div>
+                )}
+                {!generating && !analysis && (
+                    <Button
+                        onClick={handleGenerateAnalysis}
+                        disabled={!id}
+                        className="mt-8"
+                    >
+                        Run Analysis
+                    </Button>
+                )}
 
             </main>
-        </div>
+        </div >
     );
 };
 

@@ -11,6 +11,10 @@ service cloud.firestore {
       allow read: if request.auth.uid != null;
     }
 
+    match /Analysis/{document=**} {
+      allow read: if request.auth.uid != null;
+    }
+
     // Match the user's document and all subcollections within it
     match /Users/{userId}/{document=**} {
       // Allow creating documents if the user is authenticated and within their own path
