@@ -1,61 +1,44 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import useAuth from "@/hooks/useAuth";
 import { useState } from "react";
-
-interface Metadata {
-  id: string;
-  title: string;
-  author: string;
-}
 
 export default function Home() {
 
   const { user, loading: loadingUser, loginWithGoogle } = useAuth();
 
   const [id, setId] = useState("");
-  const [metadata, setMetadata] = useState<Metadata>();
-  const [content, setContent] = useState("");
+  const [metadata, setMetadata] = useState("");
 
   const handleInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const id = event.target.value;
     setId(id);
 
     if (!id) {
-      setMetadata(undefined);
-      setContent("");
+      setMetadata("");
       return;
     }
 
-    console.log("Fetching book data for ID:", id);
+    console.log("Fetching book metadata for ID:", id);
 
     try {
-      // Fetch metadata and content from custom API route
-      const response = await fetch(`/api/gutenberg?id=${id}`);
-
+      const response = await fetch(`/api/gutenberg/metadata?id=${id}`);
       if (response.ok) {
         const data = await response.json();
 
-        // Set metadata and content based on response
-        setMetadata({
-          id,
-          title: "Book Title Placeholder", // Adjust if you parse title from metadata
-          author: "Author Placeholder", // Adjust if you parse author from metadata
-        });
-        setContent(data.contentText);
+        // Set metadata based on response
+        setMetadata(data.metadata);
       } else {
-        setMetadata(undefined);
-        setContent("Book not found.");
+        setMetadata("Book metadata not found.");
       }
     } catch (error) {
-      console.error("Error fetching book data:", error);
-      setMetadata(undefined);
-      setContent("Failed to load book data.");
+      console.error("Error fetching book metadata:", error);
+      setMetadata("Failed to load book metadata.");
     }
   };
-  
+
   if (!loadingUser && !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -88,18 +71,12 @@ export default function Home() {
           />
         </div>
 
-        {/* Display Book Metadata and Content */}
-        {metadata && (
-          <Card className="mt-8 w-full max-w-md">
-            <CardHeader>
-              <CardTitle>{metadata.title}</CardTitle>
-              <p className="text-sm text-gray-500">{metadata.author}</p>
-            </CardHeader>
-            <CardContent className="overflow-y-auto max-h-96">
-              <pre className="whitespace-pre-wrap text-sm">{content}</pre>
-            </CardContent>
-          </Card>
-        )}
+        {/* Display Book Metadata */}
+        <Card className="mt-8 w-full max-w-md">
+          <CardContent className="overflow-y-auto max-h-96">
+            <pre className="whitespace-pre-wrap text-sm">{metadata}</pre>
+          </CardContent>
+        </Card>
 
       </main>
     </div>
