@@ -1,13 +1,15 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import useAuth from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Home() {
-
   const { user, loading: loadingUser, loginWithGoogle } = useAuth();
+  const router = useRouter();
 
   const [id, setId] = useState("");
   const [metadata, setMetadata] = useState("");
@@ -47,7 +49,7 @@ export default function Home() {
           Login with Google
         </button>
       </div>
-    )
+    );
   }
 
   return (
@@ -70,11 +72,25 @@ export default function Home() {
         </div>
 
         {/* Display Book Metadata */}
-        <Card className="mt-8 w-full max-w-md">
+        <Card className="mt-8 w-full max-w-md cursor-pointer">
+          <CardTitle>Metadata</CardTitle>
           <CardContent className="overflow-y-auto max-h-96">
             <pre className="whitespace-pre-wrap text-sm">{metadata}</pre>
           </CardContent>
         </Card>
+
+        {/* Display Read Book Button */}
+        <Button
+          onClick={() => {
+            if (!id) return;
+
+            router.push(`/${id}`);
+          }}
+          disabled={!id}
+          className="mt-8"
+        >
+          Read Book
+        </Button>
 
       </main>
     </div>
