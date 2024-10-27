@@ -2,6 +2,15 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    match /Metadata/{document=**} {
+      allow read: if request.auth.uid != null;
+    }
+
+    match /Books/{document=**} {
+      allow read: if request.auth.uid != null;
+    }
+
     // Match the user's document and all subcollections within it
     match /Users/{userId}/{document=**} {
       // Allow creating documents if the user is authenticated and within their own path
